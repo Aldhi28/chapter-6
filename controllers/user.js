@@ -1,9 +1,9 @@
+require('dotenv').config()
 const jwt = require('jsonwebtoken')
+const {APP_SECRET} = process.env
 const bcrypt = require('bcrypt')
-const User = require("../models/users.model");
-const addcharacter = require("../models/character.models")
+const {UserRole, User, rooms } = require('../models');
 
-const { APP_SECRET } = process.env;
 
 const createToken = (id) => {
     return jwt.sign({ id }, APP_SECRET, { expiresIn: "7 days" });
@@ -22,7 +22,7 @@ const viewaddcharacter = (req, res ) => {
 };
 const createaddcharacter = async (req,res) => {
     const {Character,Gender,Weapon,Skill } = req.body;  
-    await addcharacter.create({
+    await userRoles.create({
         Character,
         Gender,
         Weapon,
@@ -34,8 +34,16 @@ const createaddcharacter = async (req,res) => {
 
 const createRegister = async(req ,res, next) => {
       try{
-        const {email,password} = req.body;
+        const {fullName,email,password} = req.body;
         console.log(req.body);
+
+        if(!fullName){
+            throw {
+                message:`fullName must be valid`,
+                code:400,
+                error: `bad request`,
+            };
+        }
         if(!email){
             throw {
                 message:`email must be valid`,
@@ -69,17 +77,31 @@ const createRegister = async(req ,res, next) => {
         const passwordHash = await bcrypt.hash(password, 12);
 
         const user = await User.create({
+            fullName,
             email,
             password:passwordHash,
-        });
+            role:{
+                name: "PlayerUser"
+            }
+        },
+        {
+            include: [
+                {
+                    model: UserRole,
+                    as: 'role'
+                }
+            ]
+          }
+        );
 
-
-        const token = await createToken(isExist.id);
+console.log(user)
+        const token = await createToken(user.id);
 
         return res.status(201).json({
             msg:"success create user",
             user,
             token:`bearer ${token}`,
+    
         });
        }catch (error) {
         next(error);
@@ -133,7 +155,7 @@ const createLogin = async(req ,res, next) => {
       const token = await createToken(isExist.id);
 
       return res.status(201).json({
-          msg:"success create user",
+          msg:"success login user",
           token:`bearer ${token}`,
       });
      }catch (error) {
@@ -141,5 +163,7 @@ const createLogin = async(req ,res, next) => {
   }
 
 };
+
+
 
 module.exports = {viewRegister,viewLogin,createRegister,createLogin,viewDashboard,viewaddcharacter,createaddcharacter}

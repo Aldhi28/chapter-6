@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const express = require('express');
 const userRouter = require("./routes/route");
-const sequelize = require('./models/sequalize')
+const sequelize = require('./models/sequelize')
 const PORT = process.env.PORT;
 
 const app = express();
@@ -20,7 +20,7 @@ sequelize
 })
 .catch((error) => {
     console.log('error')
-});
+})
 
 app.use((err, req, res, next) => {
     console.log(err);

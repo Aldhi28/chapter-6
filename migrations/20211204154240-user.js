@@ -8,16 +8,32 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true,
         allowNull: false
-      },
-      email: {
+    },
+    fullName: {
+        type: Sequelize.STRING(100),
+        allowNull: false
+    },
+    email: {
+        type: Sequelize.STRING(100),
+        allowNull: false
+    },
+    password: {
         type: Sequelize.STRING,
         allowNull: false
-      },
-      password: {
-        type: Sequelize.STRING,
-        allowNull: false
-      }
-    });
+    },
+    createdAt: {
+        type: Sequelize.DATE,
+        defaultValue: new Date()
+    },
+    updatedAt: {
+        type: Sequelize.DATE,
+        defaultValue: new Date()
+    },
+    deletedAt: {
+        type: Sequelize.DATE,
+        allowNull: true
+    }
+     });
   },
 
   down: async (queryInterface, Sequelize) => {
